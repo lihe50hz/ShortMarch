@@ -24,6 +24,11 @@ Application::~Application() {
 // We assume GLFW-like action codes: 1 for PRESS, 0 for RELEASE.
 // We assume ASCII-like key codes: 87 for W, 83 for S, 65 for A, 68 for D.
 void Application::ProcessInput() {
+    // Only process input if camera is enabled
+    if (!camera_enabled_) {
+        return;
+    }
+
     // Move forward
     if (is_w_pressed_) {
         camera_pos_ += camera_speed_ * camera_front_;
@@ -40,10 +45,23 @@ void Application::ProcessInput() {
     if (is_d_pressed_) {
         camera_pos_ += glm::normalize(glm::cross(camera_front_, camera_up_)) * camera_speed_;
     }
+    // Move up (Space)
+    if (is_space_pressed_) {
+        camera_pos_ += camera_speed_ * camera_up_;
+    }
+    // Move down (Shift)
+    if (is_shift_pressed_) {
+        camera_pos_ -= camera_speed_ * camera_up_;
+    }
 }
 
 // Event handler for mouse movement
 void Application::OnMouseMove(double xpos, double ypos) {
+    // Only process mouse movement if camera is enabled
+    if (!camera_enabled_) {
+        return;
+    }
+
     if (first_mouse_) {
         last_x_ = (float)xpos;
         last_y_ = (float)ypos;
@@ -76,15 +94,39 @@ void Application::OnMouseMove(double xpos, double ypos) {
     camera_front_ = glm::normalize(front);
 }
 
+// Event handler for mouse button clicks
+void Application::OnMouseButton(int button, int action, int mods, double xpos, double ypos) {
+    const int BUTTON_RIGHT = 1; // Right mouse button
+    const int ACTION_PRESS = 1;
+
+    if (button == BUTTON_RIGHT && action == ACTION_PRESS) {
+        // Toggle camera mode
+        camera_enabled_ = !camera_enabled_;
+        
+        if (camera_enabled_) {
+            // Entering camera mode - hide cursor and grab it
+            glfwSetInputMode(window_->GLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            first_mouse_ = true; // Reset to prevent jump
+            grassland::LogInfo("Camera mode enabled");
+        } else {
+            // Exiting camera mode - show cursor
+            glfwSetInputMode(window_->GLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            grassland::LogInfo("Camera mode disabled - cursor visible");
+        }
+    }
+}
+
 // Process keyboard input each frame
 void Application::OnKeyEvent(int key, int scancode, int action, int mods) {
     const int ACTION_PRESS = 1;
     const int ACTION_RELEASE = 0;
 
-    const int KEY_W = 87; // W
-    const int KEY_S = 83; // S
-    const int KEY_A = 65; // A
-    const int KEY_D = 68; // D
+    const int KEY_W = 87;     // W
+    const int KEY_S = 83;     // S
+    const int KEY_A = 65;     // A
+    const int KEY_D = 68;     // D
+    const int KEY_SPACE = 32; // Space
+    const int KEY_SHIFT = 340; // Left Shift (GLFW_KEY_LEFT_SHIFT)
 
     if (key == KEY_W) {
         if (action == ACTION_PRESS) {
@@ -118,6 +160,22 @@ void Application::OnKeyEvent(int key, int scancode, int action, int mods) {
             is_d_pressed_ = false;
         }
     }
+    else if (key == KEY_SPACE) {
+        if (action == ACTION_PRESS) {
+            is_space_pressed_ = true;
+        }
+        else if (action == ACTION_RELEASE) {
+            is_space_pressed_ = false;
+        }
+    }
+    else if (key == KEY_SHIFT) {
+        if (action == ACTION_PRESS) {
+            is_shift_pressed_ = true;
+        }
+        else if (action == ACTION_RELEASE) {
+            is_shift_pressed_ = false;
+        }
+    }
 }
 
 
@@ -141,8 +199,15 @@ void Application::OnInit() {
             this->OnMouseMove(xpos, ypos);
         }
     );
+    // Register the mouse button event handler
+    window_->MouseButtonEvent().RegisterCallback(
+        [this](int button, int action, int mods, double xpos, double ypos) {
+            this->OnMouseButton(button, action, mods, xpos, ypos);
+        }
+    );
 
-    // Hide and "grab" the cursor
+    // Initialize camera as enabled and hide cursor
+    camera_enabled_ = true;
     glfwSetInputMode(window_->GLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Create scene

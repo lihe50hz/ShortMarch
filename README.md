@@ -6,7 +6,7 @@ This is the official repository for the Advanced Computer Graphics instructed by
 
 ## Honor Code
 
-You are expected to uphold the principles of academic integrity and honesty in all your work related to this repository. Any form of academic dishonesty, including but not limited to plagiarism, cheating, or unauthorized collaboration, is strictly prohibited and may result in severe consequences. Any direct copy and paste of code (even from the `external/` code this repository referred) will be considered as cheating. You are free to read any reference materials, including books, articles, and online resources, to enhance your understanding of the subject matter.
+You are expected to uphold the principles of academic integrity and honesty in all your work related to this repository. Any form of academic dishonesty, including but not limited to plagiarism, cheating, or unauthorized collaboration, is strictly prohibited and may result in severe consequences. **Any direct copy and paste of code (even from the `external/` code this repository referred) or using AI tools to generate code with knowledge of the subject matter will be considered as cheating**. You are free to read any reference materials, including books, articles, and online resources, to enhance your understanding of the subject matter.
 
 By accessing and using this repository, you acknowledge that you have read, understood, and agreed to abide by this Honor Code. If you do not agree to these terms, you must refrain from using this repository.
 

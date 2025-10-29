@@ -60,9 +60,12 @@ private:
     bool is_s_pressed_{ false };
     bool is_a_pressed_{ false };
     bool is_d_pressed_{ false };
+    bool is_space_pressed_{ false };
+    bool is_shift_pressed_{ false };
 
 
     void OnMouseMove(double xpos, double ypos); // Mouse event handler
+    void OnMouseButton(int button, int action, int mods, double xpos, double ypos); // Mouse button event handler
 
     float yaw_;
     float pitch_;
@@ -70,4 +73,5 @@ private:
     float last_y_;
     float mouse_sensitivity_;
     bool first_mouse_; // Prevents camera jump on first mouse input
+    bool camera_enabled_; // Whether camera movement is enabled
 };
