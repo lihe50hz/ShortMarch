@@ -48,7 +48,7 @@ struct RayPayload {
   output[DispatchRaysIndex().xy] = float4(payload.color, 1);
 }
 
-    [shader("miss")] void MissMain(inout RayPayload payload) {
+[shader("miss")] void MissMain(inout RayPayload payload) {
   if (!payload.hit) {
     payload.color = float3(0.8, 0.7, 0.6);
   }
