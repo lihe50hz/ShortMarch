@@ -378,16 +378,24 @@ void Application::UpdateHoveredEntity() {
     entity_id_image_->DownloadData(&entity_id, offset, extent);
     hovered_entity_id_ = entity_id;
     
-    // Read pixel color from the output image (accumulated or immediate)
-    // Use film output if accumulating, otherwise use direct color output
-    float pixel_rgba[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-    grassland::graphics::Image* sample_image = film_->GetOutputImage();
-    
+    // Read pixel color from accumulated buffer (before highlighting is applied)
     // Note: This is a synchronous read which may cause a GPU stall
     // For better performance, consider using a readback buffer with a frame delay
-    sample_image->DownloadData(pixel_rgba, offset, extent);
+    float accumulated_rgba[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    film_->GetAccumulatedColorImage()->DownloadData(accumulated_rgba, offset, extent);
     
-    hovered_pixel_color_ = glm::vec4(pixel_rgba[0], pixel_rgba[1], pixel_rgba[2], pixel_rgba[3]);
+    // Average by sample count to get final color (before highlighting)
+    int sample_count = film_->GetSampleCount();
+    if (sample_count > 0) {
+        hovered_pixel_color_ = glm::vec4(
+            accumulated_rgba[0] / static_cast<float>(sample_count),
+            accumulated_rgba[1] / static_cast<float>(sample_count),
+            accumulated_rgba[2] / static_cast<float>(sample_count),
+            accumulated_rgba[3] / static_cast<float>(sample_count)
+        );
+    } else {
+        hovered_pixel_color_ = glm::vec4(0.0f);
+    }
     
     // Hover state is shown in the UI panels, no logging needed
 }
